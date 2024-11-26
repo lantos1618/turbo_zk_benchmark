@@ -12,10 +12,13 @@ fn udp_ping_pong_benchmark(c: &mut Criterion) {
     group.bench_function("udp_ping_pong", |b| {
         let rt = Runtime::new().unwrap();
         b.iter(|| {
-            let (elapsed, total_bytes) = rt.block_on(udp_ping_pong(black_box(iterations), black_box(msg_size)));
-            let latency_ms = elapsed.as_nanos() as f64 / 1_000_000.0 / iterations as f64;
-            let throughput_mbps = total_bytes as f64 / elapsed.as_secs_f64() / 1_000_000.0;
-            println!("Latency: {:.2} ms/iter, Throughput: {:.2} MB/s", latency_ms, throughput_mbps);
+            if let Ok((elapsed, total_bytes)) = rt.block_on(udp_ping_pong(black_box(iterations), black_box(msg_size))) {
+                let latency_ms = elapsed.as_nanos() as f64 / 1_000_000.0 / iterations as f64;
+                let throughput_mbps = total_bytes as f64 / elapsed.as_secs_f64() / 1_000_000.0;
+                println!("Latency: {:.2} ms/iter, Throughput: {:.2} MB/s", latency_ms, throughput_mbps);
+            } else {
+                println!("Error occurred during UDP ping pong benchmark");
+            }
         })
     });
 
@@ -31,10 +34,13 @@ fn webrtc_benchmark_fn(c: &mut Criterion) {
     group.bench_function("webrtc", |b| {
         let rt = Runtime::new().unwrap();
         b.iter(|| {
-            let (elapsed, total_bytes) = rt.block_on(webrtc_benchmark(black_box(iterations), black_box(msg_size)));
-            let latency_ms = elapsed.as_nanos() as f64 / 1_000_000.0 / iterations as f64;
-            let throughput_mbps = total_bytes as f64 / elapsed.as_secs_f64() / 1_000_000.0;
-            println!("Latency: {:.2} ms/iter, Throughput: {:.2} MB/s", latency_ms, throughput_mbps);
+            if let Ok((elapsed, total_bytes)) = rt.block_on(webrtc_benchmark(black_box(iterations), black_box(msg_size))) {
+                let latency_ms = elapsed.as_nanos() as f64 / 1_000_000.0 / iterations as f64;
+                let throughput_mbps = total_bytes as f64 / elapsed.as_secs_f64() / 1_000_000.0;
+                println!("Latency: {:.2} ms/iter, Throughput: {:.2} MB/s", latency_ms, throughput_mbps);
+            } else {
+                println!("Error occurred during WebRTC benchmark");
+            }
         })
     });
 

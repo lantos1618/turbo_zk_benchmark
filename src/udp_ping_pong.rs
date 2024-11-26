@@ -1,7 +1,8 @@
 use std::time::Instant;
 use tokio::net::UdpSocket;
+use anyhow::Result;
 
-pub async fn udp_ping_pong(iterations: u64, msg_size: usize) -> (std::time::Duration, usize) {
+pub async fn udp_ping_pong(iterations: u64, msg_size: usize) -> Result<(std::time::Duration, usize)> {
     let addr1 = "127.0.0.1:8888";
     let addr2 = "127.0.0.1:9999";
 
@@ -31,5 +32,5 @@ pub async fn udp_ping_pong(iterations: u64, msg_size: usize) -> (std::time::Dura
     let elapsed = start.elapsed();
     let total_bytes = iterations * msg_size as u64 * 2;
 
-    (elapsed, total_bytes as usize)
+    Ok((elapsed, total_bytes as usize))
 } 

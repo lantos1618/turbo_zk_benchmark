@@ -68,6 +68,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4b46cbb362ab8752921c97e041f5e366ee6297bd428a31275b9fcf1e380f7299"
 
 [[package]]
+name = "anyhow"
+version = "1.0.93"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c95c10ba0b00a02636238b814946408b1322d5ac4760326e6fb8ec956d85775"
+
+[[package]]
 name = "arc-swap"
 version = "1.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2043,8 +2049,11 @@ dependencies = [
 name = "turbo_zk_benchmark"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "bytes",
  "criterion",
+ "serde",
+ "serde_json",
  "tokio",
  "webrtc",
  "webrtc-dtls",
