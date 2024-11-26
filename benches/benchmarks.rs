@@ -2,6 +2,7 @@ use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use tokio::runtime::Runtime;
 use turbo_zk_benchmark::udp_ping_pong::udp_ping_pong;
 use turbo_zk_benchmark::webrtc_benchmark::webrtc_benchmark;
+use turbo_zk_benchmark::zk_bellman::zk_bellman_benchmark;
 
 fn udp_ping_pong_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("udp_ping_pong");
@@ -47,5 +48,25 @@ fn webrtc_benchmark_fn(c: &mut Criterion) {
     group.finish();
 }
 
-criterion_group!(benches, udp_ping_pong_benchmark, webrtc_benchmark_fn);
+fn zk_bellman_benchmark_fn(c: &mut Criterion) {
+    let mut group = c.benchmark_group("zk_bellman");
+
+    // Define the input parameter for the benchmark
+    let payload_size = 1024;
+
+    group.bench_function("zk_bellman", |b| {
+        b.iter(|| {
+            if let Ok(elapsed) = zk_bellman_benchmark(black_box(payload_size)) {
+                let proving_time_ms = elapsed.as_millis();
+                println!("Proving time: {} ms", proving_time_ms);
+            } else {
+                println!("Error occurred during ZK Bellman benchmark");
+            }
+        })
+    });
+
+    group.finish();
+}
+
+criterion_group!(benches, udp_ping_pong_benchmark, webrtc_benchmark_fn, zk_bellman_benchmark_fn);
 criterion_main!(benches); 
