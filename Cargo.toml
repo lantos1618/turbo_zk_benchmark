@@ -22,6 +22,14 @@ tungstenite = "0.18.0"
 tokio-tungstenite = "0.24.0"
 futures-util = "0.3.31"
 url = "2.5.4"
+ark-groth16 = "0.5.0"
+ark-mnt4-753 = "0.5.0"
+ark-mnt6-753 = "0.5.0"
+ark-relations = "0.5.1"
+ark-crypto-primitives = "0.5.0"
+halo2_proofs = "0.3.0"
+halo2curves = "0.7.0"
+halo2 = "0.0.0"
 
 
 [dev-dependencies]

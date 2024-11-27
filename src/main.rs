@@ -3,7 +3,6 @@ use tokio_tungstenite::{accept_async, connect_async, tungstenite::Message};
 use futures_util::{SinkExt, StreamExt};
 use url::Url;
 use std::time::{Duration, Instant};
-
 const MESSAGE_SIZE_BYTES: usize = 32; // Size of the ping message in bytes
 
 async fn ping_pong_websocket() {
@@ -90,4 +89,5 @@ async fn ping_pong_websocket() {
 async fn main() {
     println!("Hello, world!");
     ping_pong_websocket().await;
+
 }
