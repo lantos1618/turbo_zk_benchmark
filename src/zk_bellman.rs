@@ -33,26 +33,29 @@ impl<Scalar: PrimeField> Circuit<Scalar> for MyCircuit {
     }
 }
 
-pub fn zk_bellman_benchmark(payload_size: usize) -> Result<std::time::Duration> {
+pub fn zk_bellman_benchmark(payload_size: usize, iterations: usize) -> Result<(std::time::Duration, usize)> {
     let rng = &mut thread_rng();
     let payload: Vec<u8> = (0..payload_size).map(|_| rng.gen()).collect();
     let payload_bits = payload.iter().map(|&byte| Boolean::constant(byte > 127)).collect();
 
     let circuit = MyCircuit { payload: payload_bits };
 
-    let start = Instant::now();
-
     let params = {
         let mut rng = thread_rng();
         groth16::generate_random_parameters::<Bls12, _, _>(circuit.clone(), &mut rng)?
     };
 
-    let _proof = {
-        let mut rng = thread_rng();
-        groth16::create_random_proof(circuit, &params, &mut rng)?
-    };
+    let start = Instant::now();
+
+    let mut rng = thread_rng();
+    for _ in 0..iterations {
+        let _proof = {
+            groth16::create_random_proof(circuit.clone(), &params, &mut rng)?
+        };
+    }
 
     let elapsed = start.elapsed();
+    let total_bytes = payload_size * iterations;
 
-    Ok(elapsed)
+    Ok((elapsed, total_bytes))
 }
