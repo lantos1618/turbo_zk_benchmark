@@ -17,7 +17,7 @@ struct State {
 }
 
 impl State {
-    fn new(proof: Option<Vec<u8>>, x: u32, y: u32) -> Self {
+    pub fn new(proof: Option<Vec<u8>>, x: u32, y: u32) -> Self {
         Self {
             proof,
             x: F::from_canonical_u32(x),
@@ -25,7 +25,7 @@ impl State {
         }
     }
 
-    fn move_by(&self, x_prime: u32, y_prime: u32) -> Result<Self> {
+    pub fn move_by(&self, x_prime: u32, y_prime: u32) -> Result<Self> {
         let new_x = self.x + F::from_canonical_u32(x_prime);
         let new_y = self.y + F::from_canonical_u32(y_prime);
 
