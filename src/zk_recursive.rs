@@ -25,14 +25,11 @@ impl State {
         }
     }
 
-    pub fn move_by(&self, x_prime: u32, y_prime: u32) -> Result<Self> {
-        let new_x = self.x + F::from_canonical_u32(x_prime);
-        let new_y = self.y + F::from_canonical_u32(y_prime);
-
+    fn build_circuit() -> (CircuitBuilder<F, 2>, [plonky2::iop::target::Target; 6]) {
         let config = CircuitConfig::standard_recursion_config();
         let mut builder = CircuitBuilder::<F, 2>::new(config);
 
-        // Create targets for old and new coordinates
+        // Create targets for coordinates
         let x_target = builder.add_virtual_target();
         let y_target = builder.add_virtual_target();
         let x_prime_target = builder.add_virtual_target();
@@ -46,7 +43,7 @@ impl State {
         builder.connect(computed_new_x, new_x_target);
         builder.connect(computed_new_y, new_y_target);
 
-        // Register all values as public inputs
+        // Register public inputs
         builder.register_public_input(x_target);
         builder.register_public_input(y_target);
         builder.register_public_input(x_prime_target);
@@ -54,16 +51,30 @@ impl State {
         builder.register_public_input(new_x_target);
         builder.register_public_input(new_y_target);
 
+        let targets = [
+            x_target, y_target, 
+            x_prime_target, y_prime_target,
+            new_x_target, new_y_target
+        ];
+
+        (builder, targets)
+    }
+
+    pub fn move_by(&self, x_prime: u32, y_prime: u32) -> Result<Self> {
+        let new_x = self.x + F::from_canonical_u32(x_prime);
+        let new_y = self.y + F::from_canonical_u32(y_prime);
+
+        let (builder, targets) = Self::build_circuit();
         let data = builder.build::<PoseidonGoldilocksConfig>();
 
         // Create witness
         let mut pw = PartialWitness::new();
-        pw.set_target(x_target, self.x)?;
-        pw.set_target(y_target, self.y)?;
-        pw.set_target(x_prime_target, F::from_canonical_u32(x_prime))?;
-        pw.set_target(y_prime_target, F::from_canonical_u32(y_prime))?;
-        pw.set_target(new_x_target, new_x)?;
-        pw.set_target(new_y_target, new_y)?;
+        pw.set_target(targets[0], self.x)?;
+        pw.set_target(targets[1], self.y)?;
+        pw.set_target(targets[2], F::from_canonical_u32(x_prime))?;
+        pw.set_target(targets[3], F::from_canonical_u32(y_prime))?;
+        pw.set_target(targets[4], new_x)?;
+        pw.set_target(targets[5], new_y)?;
 
         let proof = data.prove(pw)?;
 
@@ -77,31 +88,7 @@ impl State {
     fn verify(&self) -> Result<bool> {
         match &self.proof {
             Some(proof_bytes) => {
-                let config = CircuitConfig::standard_recursion_config();
-                let mut builder = CircuitBuilder::<F, 2>::new(config);
-
-                // Create the same circuit structure as in move_by
-                let x_target = builder.add_virtual_target();
-                let y_target = builder.add_virtual_target();
-                let x_prime_target = builder.add_virtual_target();
-                let y_prime_target = builder.add_virtual_target();
-                let new_x_target = builder.add_virtual_target();
-                let new_y_target = builder.add_virtual_target();
-
-                // Add the same constraints
-                let computed_new_x = builder.add(x_target, x_prime_target);
-                let computed_new_y = builder.add(y_target, y_prime_target);
-                builder.connect(computed_new_x, new_x_target);
-                builder.connect(computed_new_y, new_y_target);
-
-                // Register public inputs in the same order
-                builder.register_public_input(x_target);
-                builder.register_public_input(y_target);
-                builder.register_public_input(x_prime_target);
-                builder.register_public_input(y_prime_target);
-                builder.register_public_input(new_x_target);
-                builder.register_public_input(new_y_target);
-
+                let (builder, _) = Self::build_circuit();
                 let data = builder.build::<PoseidonGoldilocksConfig>();
 
                 // Deserialize and verify the proof
