@@ -120,16 +120,26 @@ impl State {
 
 #[test]
 fn test_state_transitions() -> Result<()> {
-    let s_0 = State::new(None, 0, 0);
-    let s_1 = s_0.move_by(1, 1)?;
-    let s_2 = s_1.move_by(1, 1)?;
-    let s_3 = s_2.move_by(1, 1)?;
+    let mut states = vec![State::new(None, 0, 0)];
+    
+    // Create 3 state transitions
+    for i in 0..30 {
+        let next_state = states[i].move_by(1, 1)?;
+        states.push(next_state);
+    }
 
-    assert!(s_3.verify()?);
-    println!(
-        "State transitions: (x, y) = ({}, {}) -> ({}, {}) -> ({}, {}) -> ({}, {})",
-        s_0.x, s_0.y, s_1.x, s_1.y, s_2.x, s_2.y, s_3.x, s_3.y
-    );
+    // Verify final state
+    assert!(states.last().unwrap().verify()?);
+
+    // Print transitions
+    for i in 1..states.len() {
+        println!(
+            "s({}) -> s({}): ({}, {}) -> ({}, {})",
+            i-1, i,
+            states[i-1].x, states[i-1].y,
+            states[i].x, states[i].y
+        );
+    }
 
     Ok(())
 }
