@@ -126,20 +126,14 @@ fn test_state_transitions() -> Result<()> {
     for i in 0..30 {
         let next_state = states[i].move_by(1, 1)?;
         states.push(next_state);
+        if (i > 0) {
+            println!("s({}) -> s({}): ({}, {}) -> ({}, {})", i-1, i, states[i-1].x, states[i-1].y, states[i].x, states[i].y);
+        }
     }
 
     // Verify final state
     assert!(states.last().unwrap().verify()?);
 
-    // Print transitions
-    for i in 1..states.len() {
-        println!(
-            "s({}) -> s({}): ({}, {}) -> ({}, {})",
-            i-1, i,
-            states[i-1].x, states[i-1].y,
-            states[i].x, states[i].y
-        );
-    }
 
     Ok(())
 }
