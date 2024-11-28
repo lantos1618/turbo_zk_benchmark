@@ -21,6 +21,8 @@ impl<F: Field> State<F> {
     }
 }
 
+
+
 #[test]
 fn test_recursive_halo2() -> Result<()> {
     const D: usize = 2;
